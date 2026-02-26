@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恋爱一百天纪念</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px 100px;
+        }
+
+        .page {
+            display: none;
+            text-align: center;
+            max-width: 800px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .page.fade-out {
+            opacity: 0;
+        }
+
+        .title {
+            font-size: 3em;
+            color: #e74c3c;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: #c0392b;
+            margin-bottom: 30px;
+        }
+
+        .content-box {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .content-text {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .content-image {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .timeline {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        }
+
+        .timeline-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24, #f39c12, #e74c3c, #c0392b);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .timeline-item {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .timeline-dot {
+            width: 3px;
+            height: 40px;
+            background: #e74c3c;
+            margin: 0 auto 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-dot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e74c3c;
+        }
+
+        .timeline-item.active .timeline-dot {
+            height: 50px;
+            background: #c0392b;
+        }
+
+        .timeline-item.active .timeline-dot::after {
+            background: #c0392b;
+            width: 16px;
+            height: 16px;
+        }
+
+        .timeline-date {
+            font-size: 0.9em;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .timeline-label {
+            display: none;
+        }
+
+        .arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .arrow:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .arrow-left {
+            left: 20px;
+        }
+
+        .arrow-right {
+            right: 20px;
+        }
+
+        .arrow-svg {
+            transition: all 0.3s ease;
+        }
+
+        .arrow:hover .arrow-svg {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="arrow arrow-left" id="arrow-left">
+        <svg class="arrow-svg left" width="32" height="32" viewBox="0 0 24 24">
+            <path d="M15 18l-6-6 6-6" stroke="#e74c3c" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <div class="arrow arrow-right" id="arrow-right">
+        <svg class="arrow-svg right" width="32" height="32" viewBox="0 0 24 24">
+            <path d="M9 18l6-6-6-6" stroke="#e74c3c" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <div class="main-content">
+        <div class="page active" id="page-home">
+            <h1 class="title">全部都不能忘！</h1>
+            <p class="subtitle">——————————————————————</p>
+            <div class="content-box">
+                <img src="222.png" alt="主页照片" class="content-image">
+                <p class="content-text">
+                    这原本是一个恋爱一百天的一个纪念小网站<br>
+                    但是非常不巧没有按时做完<br>
+                    所以他现在是一个纪念我们印象深刻的小事的小网站<br>
+                    看看还有没有什么漏掉的！
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-1">
+            <h1 class="title">2025.9.6</h1>
+            <p class="subtitle">羁绊的开始！</p>
+            <div class="content-box">
+                <img src="月亮河.png" alt="第一天回忆照片" class="content-image">
+                <p class="content-text">
+                    就是这个诡异的月亮河！<br>
+                    我第一次发现这个人是如此的有意思<br>
+                    怎么会有人单练点两个灯。。<br>
+                    
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-2">
+            <h1 class="title">2025.9.25</h1>
+            <p class="subtitle">坐牢的开始！</p>
+            <div class="content-box">
+                <img src="给力队友.jpg" alt="第二十天回忆照片" class="content-image">
+                <p class="content-text">
+                    不知道是什么驱使着我们开始打王者了！<br>
+                    就是这个万恶的开头让我们一直在坐牢！<br>
+                    但是王者荣耀真好玩
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-3">
+            <h1 class="title">2025.10.9</h1>
+            <p class="subtitle">石榴选美大赛！</p>
+            <div class="content-box">
+                <img src="石榴.jpg" alt="第五十天回忆照片" class="content-image">
+                <p class="content-text">
+                    原本只是以为你在玩梗而已！<br>
+                    但是真的把所有的石榴籽都摆出来让我选<br>
+                    好开心
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-4">
+            <h1 class="title">2025.10.27</h1>
+            <p class="subtitle">第一个礼物！</p>
+            <div class="content-box">
+                <img src="猫好好.jpg" alt="第八十天回忆照片" class="content-image">
+                <p class="content-text">
+                    这是你给我的第一个礼物！<br>
+                    小小的很适合挂在床头！<br>
+                    他就这样陪睡一整个学期
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-5">
+            <h1 class="title">2025.11.12</h1>
+            <p class="subtitle">重要的一天！</p>
+            <div class="content-box">
+                <img src="很重要.png" alt="第一百天回忆照片" class="content-image">
+                <p class="content-text">
+                    今天原本只是平平无奇的的一把王者荣耀<br>
+                    结果一不小心气氛就变得很差<br>
+                    在我还战战兢兢不知道怎么道歉的时候<br>
+                    你就直接找我说了好多www<br>
+                    这是我的情绪第一次好好的被看见和重视
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-6">
+            <h1 class="title">2025.11.13</h1>
+            <p class="subtitle">小番茄！</p>
+            <div class="content-box">
+                <img src="小番茄.png" alt="第一百二十天回忆照片" class="content-image">
+                <p class="content-text">
+                   然后就是在打电话期间偶然得知这个美味小番茄！<br>
+                   买之。
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-7">
+            <h1 class="title">2025.11.15</h1>
+            <p class="subtitle">表白了！</p>
+            <div class="content-box">
+                <img src="表白.jpg" alt="第一百五十天回忆照片" class="content-image">
+                <p class="content-text">
+                    就这样在电话里表白聊了两个小时<br>
+                    其实很幸运你会接受这样不好的我<br>
+                    我也没想到一眨眼就过去这么久了<br>
+                    从那时到现在的每一天都很深刻都很开心<br>
+                    以后的日子也要一直在一起哟
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-8">
+            <h1 class="title">2025.11.30</h1>
+            <p class="subtitle">卫！(#`O′)</p>
+            <div class="content-box">
+                <img src="卫戍协议.png" alt="第一百八十天回忆照片" class="content-image">
+                <p class="content-text">
+                    然后就是在一起之后很自在很幸福地卫戍协议！<br>
+                    本来就每天盼着和你打电话聊天的现在更是无法自拔ww<br>
+                    和你一起手拉手打过这么些boss也很有成就感<br>
+                    每天都是宿舍最晚睡的！
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-9">
+            <h1 class="title">2026.1.21</h1>
+            <p class="subtitle">最长的电话！</p>
+            <div class="content-box">
+                <img src="电话.jpg" alt="第二百天回忆照片" class="content-image">
+                <p class="content-text">
+                    整整两个13小时的电话！<br>
+                    好喜欢一起打着电话随便聊天随便做点什么<br>
+                    好喜欢这种只是跟你在一起的松弛的状态
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-10">
+            <h1 class="title">2026.2.2</h1>
+            <p class="subtitle">好东西！</p>
+            <div class="content-box">
+                <img src="好东西.jpg" alt="第二百五十天回忆照片" class="content-image">
+                <p class="content-text">
+                    就是这天！<br>
+                    我期待了特别特别久的好东西到了！<br>
+                    我一直到现在每天看到他都会很开心<br>
+                    我还记得那天一整天都在赶路但是收到他之后立马就好了<br>
+                    我要把他们一直带在身边ww
+                </p>
+            </div>
+        </div>
+
+        <div class="page" id="page-11">
+            <h1 class="title">以后</h1>
+            <p class="subtitle">——————————————————————</p>
+            <div class="content-box">
+                <img src="111.png" alt="第三百天回忆照片" class="content-image">
+                <p class="content-text">
+                    虽然最近还是有一些小难过<br>
+                    但是我还是会努力和你一起开心的！<br>
+                    以后也想有更多这样的时候<br>
+                    可能看起来都是很小的事情<br>
+                    当时的开心却很深刻<br>
+                    还想和你有更多这样开心的时候！
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline">
+        <div class="timeline-container">
+            <div class="timeline-item active" data-page="page-home">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">主页</div>
+                <div class="timeline-label">开始</div>
+            </div>
+            <div class="timeline-item" data-page="page-1">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">2025.9.6</div>
+                <div class="timeline-label">相遇</div>
+            </div>
+            <div class="timeline-item" data-page="page-2">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">9.25</div>
+                <div class="timeline-label">甜蜜</div>
+            </div>
+            <div class="timeline-item" data-page="page-3">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">10.9</div>
+                <div class="timeline-label">纪念</div>
+            </div>
+            <div class="timeline-item" data-page="page-4">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">10.27</div>
+                <div class="timeline-label">成长</div>
+            </div>
+            <div class="timeline-item" data-page="page-5">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">11.12</div>
+                <div class="timeline-label">未来</div>
+            </div>
+            <div class="timeline-item" data-page="page-6">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">11.13</div>
+                <div class="timeline-label">陪伴</div>
+            </div>
+            <div class="timeline-item" data-page="page-7">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">11.15</div>
+                <div class="timeline-label">珍惜</div>
+            </div>
+            <div class="timeline-item" data-page="page-8">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">11.30</div>
+                <div class="timeline-label">永恒</div>
+            </div>
+            <div class="timeline-item" data-page="page-9">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">2026.1.21</div>
+                <div class="timeline-label">幸福</div>
+            </div>
+            <div class="timeline-item" data-page="page-10">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">2.2</div>
+                <div class="timeline-label">温暖</div>
+            </div>
+            <div class="timeline-item" data-page="page-11">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">以后</div>
+                <div class="timeline-label">永远</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const pages = document.querySelectorAll('.page');
+        const arrowLeft = document.getElementById('arrow-left');
+        const arrowRight = document.getElementById('arrow-right');
+
+        // 获取所有页面的ID，按顺序排列
+        const pageIds = Array.from(pages).map(page => page.id);
+
+        // 切换到指定页面的函数
+        function switchToPage(targetPageId) {
+            const targetPage = document.getElementById(targetPageId);
+            
+            if (!targetPage || targetPage.classList.contains('active')) {
+                return;
+            }
+
+            pages.forEach(page => {
+                if (page.classList.contains('active')) {
+                    page.classList.add('fade-out');
+                    setTimeout(() => {
+                        page.classList.remove('active', 'fade-out');
+                    }, 500);
+                }
+            });
+
+            timelineItems.forEach(ti => {
+                ti.classList.remove('active');
+            });
+
+            // 找到对应的时间轴项并激活
+            const targetTimelineItem = Array.from(timelineItems).find(item => 
+                item.getAttribute('data-page') === targetPageId
+            );
+            if (targetTimelineItem) {
+                targetTimelineItem.classList.add('active');
+            }
+
+            setTimeout(() => {
+                targetPage.classList.add('active');
+            }, 500);
+        }
+
+        // 时间轴点击事件
+        timelineItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetPageId = item.getAttribute('data-page');
+                switchToPage(targetPageId);
+            });
+        });
+
+        // 左箭头点击事件
+        arrowLeft.addEventListener('click', () => {
+            // 找到当前活动页面的索引
+            const currentIndex = pageIds.findIndex(id => 
+                document.getElementById(id).classList.contains('active')
+            );
+            
+            // 计算上一个页面的索引
+            let prevIndex = currentIndex - 1;
+            if (prevIndex < 0) {
+                prevIndex = pageIds.length - 1; // 循环到最后一个页面
+            }
+            
+            switchToPage(pageIds[prevIndex]);
+        });
+
+        // 右箭头点击事件
+        arrowRight.addEventListener('click', () => {
+            // 找到当前活动页面的索引
+            const currentIndex = pageIds.findIndex(id => 
+                document.getElementById(id).classList.contains('active')
+            );
+            
+            // 计算下一个页面的索引
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= pageIds.length) {
+                nextIndex = 0; // 循环到第一个页面
+            }
+            
+            switchToPage(pageIds[nextIndex]);
+        });
+    </script>
+</body>
+</html>
